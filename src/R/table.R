@@ -20,7 +20,7 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, year, month, week, day) {
+server <- function(id, selected_date) {
   moduleServer(id, function(input, output, session) {
 
     selected_cols <- c("year", "month", "week")

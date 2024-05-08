@@ -22,9 +22,6 @@ server <- function(id) {
   moduleServer(id, function(input, output, session) {
     selectors <- selectors$server("selectors")
     table$server("table",
-                 year = selectors$year(),
-                 month = selectors$month(),
-                 week = selectors$week(),
-                 day = selectors$day())
+                 selected_date = selectors$selected_date())
   })
 }
