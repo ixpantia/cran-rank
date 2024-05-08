@@ -27,7 +27,7 @@ server <- function(id, selected_date) {
     selected_packages <- c("ggplot2", "tidyr", "dplyr", "Rcpp", "rextendr", "plumber", "shiny", "data.table", "orbweaver")
 
     output$table <- renderDT({
-      raw_data <- cran_downloads(selected_packages, from = "2023-01-01", to = "2023-12-31") |>
+      raw_data <- cran_downloads(selected_packages, from = selected_date()[1], to = selected_date()[2]) |>
         mutate(year = year(date)) |>
         mutate(month = paste0("M", month(date))) |>
         mutate(week = paste0("W", week(date))) |>

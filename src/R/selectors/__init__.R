@@ -11,9 +11,11 @@ ui <- function(id) {
   div(
     class = 'row',
     dateRangeInput(ns("date_range"), "Date range:",
-                   start  = "2000-01-01",
+                   start  = today(),
                    end    = today(),
-                   format = "dd/mm/yyyy",
+                   min    = "2001-01-01",
+                   max    = today(),
+                   format = "yyyy/mm/dd",
                    separator = " - ")
   )
 }
@@ -27,7 +29,7 @@ server <- function(id) {
     })
 
     return(
-      selected_date = selected_date
+      selected_date
     )
   })
 }
