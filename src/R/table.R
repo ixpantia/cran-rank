@@ -20,14 +20,16 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, selected_date) {
+server <- function(id, selected_date, selected_packages) {
   moduleServer(id, function(input, output, session) {
 
     selected_cols <- c("year", "month", "week")
-    selected_packages <- c("ggplot2", "tidyr", "dplyr", "Rcpp", "rextendr", "plumber", "shiny", "data.table", "orbweaver")
+    # selected_packages <- c("tidyr", "plumber", "shiny")
 
     output$table <- renderDT({
-      raw_data <- cran_downloads(selected_packages, from = selected_date()[1], to = selected_date()[2]) |>
+      raw_data <- cran_downloads(packages = selected_packages(),
+                                 from = selected_date()[1],
+                                 to = selected_date()[2]) |>
         mutate(year = year(date)) |>
         mutate(month = paste0("M", month(date))) |>
         mutate(week = paste0("W", week(date))) |>
