@@ -1,7 +1,10 @@
 box::use(
   shiny[NS, tagList, tags, moduleServer],
   DT[DTOutput, renderDT],
-  cranlogs[cran_top_downloads]
+  cranlogs[cran_top_downloads, cran_downloads],
+  lubridate[year, month, week, day],
+  dplyr[mutate],
+  tidyr[pivot_wider]
 )
 
 box::use(
@@ -17,19 +20,21 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id) {
+server <- function(id, selected_date, selected_packages) {
   moduleServer(id, function(input, output, session) {
 
     selected_cols <- c("year", "month", "week")
-    selected_packages <- c("ggplot2", "tidyr", "dplyr", "Rcpp", "rextendr", "plumber", "shiny", "data.table", "orbweaver")
+    # selected_packages <- c("tidyr", "plumber", "shiny")
 
     output$table <- renderDT({
-      raw_data <- cranlogs::cran_downloads(selected_packages, from = "2023-01-01", to = "2023-12-31") |>
-        dplyr::mutate(year = lubridate::year(date)) |>
-        dplyr::mutate(month = paste0("M", lubridate::month(date))) |>
-        dplyr::mutate(week = paste0("W", lubridate::week(date))) |>
-        dplyr::mutate(day = lubridate::day(date)) |>
-        tidyr::pivot_wider(
+      raw_data <- cran_downloads(packages = selected_packages(),
+                                 from = selected_date()[1],
+                                 to = selected_date()[2]) |>
+        mutate(year = year(date)) |>
+        mutate(month = paste0("M", month(date))) |>
+        mutate(week = paste0("W", week(date))) |>
+        mutate(day = day(date)) |>
+        pivot_wider(
           names_from = selected_cols,
           names_sep = "|",
           values_from = "count",
