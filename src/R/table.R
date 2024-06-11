@@ -33,11 +33,10 @@ server <- function(id, selected_date, selected_packages) {
         mutate(year = year(date)) |>
         mutate(month = month(date)) |>
         mutate(week = week(date)) |>
-        mutate(day = day(date)) |>
         group_by(!!!rlang::syms(selected_cols), package) |>
         summarise(count = sum(count, na.rm = TRUE), .groups = "drop") |>
         group_by(package) |>
-        dplyr::arrange(week) |>
+        dplyr::arrange(year, month, week) |>
         mutate(
           .lag = dplyr::lag(count),
           .diff = count - .lag,
@@ -49,7 +48,6 @@ server <- function(id, selected_date, selected_packages) {
         summarise(plot = redgreen::plot_values(count, 150, 50))
 
       raw_data <- downloads |>
-        dplyr::arrange(year, month, week) |>
         mutate(
           year = paste0("Y", year),
           month = paste0("M", month),
