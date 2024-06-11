@@ -27,7 +27,7 @@ server <- function(id, selected_date, selected_packages) {
     # selected_packages <- c("tidyr", "plumber", "shiny")
 
     output$table <- renderDT({
-      raw_data <- cran_downloads(packages = selected_packages(),
+      downloads <- cran_downloads(packages = selected_packages(),
                                  from = selected_date()[1],
                                  to = selected_date()[2]) |>
         mutate(year = year(date)) |>
@@ -42,21 +42,28 @@ server <- function(id, selected_date, selected_packages) {
           .lag = dplyr::lag(count),
           .diff = count - .lag,
           .is_neg = .diff < 0,
-          .html = redgreen::redgreen(count, .diff)
-        ) |>
+          .html = redgreen::redgreen(count, .diff),
+        )
+
+      plots <- downloads |>
+        summarise(plot = redgreen::plot_values(count, 150, 50))
+
+      raw_data <- downloads |>
         dplyr::arrange(year, month, week) |>
         mutate(
           year = paste0("Y", year),
           month = paste0("M", month),
           week = paste0("W", week)
         ) |>
-        dplyr::rename(Package = package) |>
         pivot_wider(
           names_from = selected_cols,
           names_sep = "|",
           values_from = ".html",
-          id_cols = "Package"
-        )
+          id_cols = "package"
+        ) |>
+        dplyr::left_join(plots, by = c("package")) |>
+        dplyr::rename(Package = package, Trend = plot) |>
+        dplyr::relocate(Package, Trend)
 
       container <- ContainerBuilder$new(colnames(raw_data))$build()
 
@@ -66,7 +73,7 @@ server <- function(id, selected_date, selected_packages) {
         container = container,
         rownames = FALSE
       ) |>
-        formatStyle(TRUE, "white-space" = "nowrap")
+        formatStyle(TRUE, "white-space" = "nowrap", "vertical-align" = "middle")
     })
   })
 }
