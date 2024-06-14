@@ -5,7 +5,8 @@ box::use(
 
 box::use(
   . / table,
-  ./ selectors
+  . / selectors,
+  . / top_3
 )
 
 #' @export
@@ -34,6 +35,7 @@ ui <- function(id) {
         class = "row px-4 pt-4",
         div(
           class = "col-3",
+          top_3$ui(ns("top_3")),
           selectors$ui(ns("selectors"))
         ),
         div(
@@ -49,6 +51,7 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     selectors <- selectors$server("selectors")
+    top_3$server("top_3")
     table$server("table",
                  selected_date = selectors$selected_date,
                  selected_packages = selectors$selected_package)
